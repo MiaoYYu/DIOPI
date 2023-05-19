@@ -1068,13 +1068,14 @@ device_configs = {
 
     'remainder': dict(
         name=['remainder'],
+        atol=1e-1,
         tensor_para=dict(
             args=[
                 {
                     "ins": ['other'],
-                    "dtype": [Skip(Dtype.float64), Skip(Dtype.float32), Skip(Dtype.float16),
-                              Skip(Dtype.int64), Skip(Dtype.int32), Skip(Dtype.int16),
-                              Skip(Dtype.int8), Skip(Dtype.bool)],
+                    "dtype": [Skip(Dtype.float64), Skip(Dtype.float16), Skip(Dtype.int64),
+                               Skip(Dtype.int32), Skip(Dtype.int16), Skip(Dtype.int8),
+                               Skip(Dtype.bool)],
                 },
             ],
         ),
