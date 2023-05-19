@@ -130,7 +130,11 @@ _cur_dir = os.path.dirname(os.path.abspath(__file__))
 diopirt_lib = CDLL(name=os.path.join(_cur_dir, "../../../DIOPI-IMPL/lib/libdiopirt.so"), mode=RTLD_GLOBAL)
 diopirt_lib.diopiInit()
 
-device_impl_lib = cdll.LoadLibrary(os.path.join(_cur_dir, "../../../DIOPI-IMPL/lib/libdiopi_impl.so"))
+try:
+    device_impl_lib = cdll.LoadLibrary(os.path.join(_cur_dir, "../../../DIOPI-IMPL/lib/libdiopi_impl.so"))
+except:
+    print("Warnning: device_impl_lib loading failed. If --mode=gen_data ignore this Warnning")
+    device_impl_lib = None
 
 
 def on_diopi_rt_exit():

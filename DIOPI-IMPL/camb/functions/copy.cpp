@@ -28,11 +28,10 @@ diopiError_t diopiCopyInp(diopiContextHandle_t ctx, diopiConstTensorHandle_t src
     if (src_tr.dtype() != dest_tr.dtype()) {
         DIOPI_CALL(dataTypeCast(ctx, src_tr, dest_tr.dtype()));
     }
-
-    CnnlTensorDesc input_desc(dest_tr, CNNL_LAYOUT_ARRAY);
+    CnnlTensorDesc dest_desc(dest_tr, CNNL_LAYOUT_ARRAY);
     CnnlTensorDesc src_desc(src_tr, CNNL_LAYOUT_ARRAY);
 
-    DIOPI_CALLCNNL(cnnlCopy(handle, src_desc.get(), src_tr.data(), input_desc.get(), dest_tr.data()));
+    DIOPI_CALLCNNL(cnnlCopy(handle, src_desc.get(), src_tr.data(), dest_desc.get(), dest_tr.data()));
 
     return diopiSuccess;
 }
