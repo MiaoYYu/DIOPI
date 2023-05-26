@@ -22,22 +22,22 @@
 namespace impl {
 namespace camb {
 
-#define DIOPI_CALLCNNL(Expr)                                                                                          \
-    do {                                                                                                              \
-        ::cnnlStatus_t ret = Expr;                                                                                    \
-        if (ret != ::CNNL_STATUS_SUCCESS) {                                                                           \
-            setLastErrorString("cnnl error %d : %s at %s:%d", ret, ::cnnlGetErrorString(ret), __FILE__, __LINE__); \
-            return diopiErrorOccurred;                                                                                \
-        }                                                                                                             \
+#define DIOPI_CALLCNNL(Expr)                                                                                                                            \
+    do {                                                                                                                                                \
+        ::cnnlStatus_t ret = Expr;                                                                                                                      \
+        if (ret != ::CNNL_STATUS_SUCCESS) {                                                                                                             \
+            setLastErrorString("cnnl error %d : %s at %s:%d, error msg: %s", ret, ::cnnlGetErrorString(ret), __FILE__, __LINE__, ::cnrtGetLastError()); \
+            return diopiErrorOccurred;                                                                                                                  \
+        }                                                                                                                                               \
     } while (false);
 
-#define DIOPI_CHECKCNNL(Expr)                                                                          \
-    do {                                                                                               \
-        ::cnnlStatus_t ret = Expr;                                                                     \
-        if (ret != ::CNNL_STATUS_SUCCESS) {                                                            \
-            printf("cnnl error %d : %s at %s:%d", ret, ::cnnlGetErrorString(ret), __FILE__, __LINE__); \
-            std::abort();                                                                              \
-        }                                                                                              \
+#define DIOPI_CHECKCNNL(Expr)                                                                                                                 \
+    do {                                                                                                                                      \
+        ::cnnlStatus_t ret = Expr;                                                                                                            \
+        if (ret != ::CNNL_STATUS_SUCCESS) {                                                                                                   \
+            printf("cnnl error %d : %s at %s:%d, error msg: %s" :, ret, ::cnnlGetErrorString(ret), __FILE__, __LINE__, ::cnrtGetLastError()); \
+            std::abort();                                                                                                                     \
+        }                                                                                                                                     \
     } while (false);
 
 class CnnlDataType final {
@@ -204,7 +204,7 @@ public:
 };
 
 diopiError_t cnnlTranspose(diopiContextHandle_t& ctx, cnnlHandle_t& handle, DiopiTensor& in, DiopiTensor& out, cnnlTensorLayout_t layoutIn,
-                            cnnlTensorLayout_t layoutOut);
+                           cnnlTensorLayout_t layoutOut);
 
 struct HashCnnlCastDType {
     size_t operator()(const std::vector<diopiDtype_t>& vec) const {
