@@ -601,14 +601,8 @@ device_configs = {
 
     'adadelta': dict(
         name=["adadelta"],
-        tensor_para=dict(
-            args=[
-                {
-                    "ins": ['param', 'param_grad'],
-                    "dtype": [Skip(Dtype.float64), Skip(Dtype.float32), Skip(Dtype.float16)],
-                },
-            ]
-        ),
+        atol=1e-1,
+  
     ),
 
     'rmsprop': dict(
