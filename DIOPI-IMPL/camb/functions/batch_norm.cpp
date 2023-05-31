@@ -8,6 +8,7 @@
 
 #include "../cnnl_helper.hpp"
 #include "../common/common.hpp"
+#include "../common/debug.hpp"
 namespace impl {
 namespace camb {
 
@@ -34,6 +35,18 @@ diopiError_t diopiBatchNorm(diopiContextHandle_t ctx, diopiTensorHandle_t out, d
     DIOPI_CHECK(dim >= 2 && dim <= 5, "Input dim is out of range");
     DIOPI_CHECK(dim == outputTr.dim(), "Input dim != out dim");
 
+    if (!weightTr.defined()){
+        diopiScalar_t val{diopi_dtype_float32, {1.0f}};
+        weightTr = requiresTensor(ctx, std::vector<int64_t>(1, inputTr.shape()[1]), inputTr.dtype());
+        DIOPI_CALL(diopiFill(ctx, weightTr.tensorHandle(), &val))
+    }
+    if (!biasTr.defined()){
+        diopiScalar_t val{diopi_dtype_float32, {0.0f}};
+        biasTr = requiresTensor(ctx, std::vector<int64_t>(1, inputTr.shape()[1]), inputTr.dtype());
+        DIOPI_CALL(diopiFill(ctx, biasTr.tensorHandle(), &val))
+    }
+    std::cout << "input:" << std::endl;
+    printDevData(ctx, inputTr);
     if (3 == dim) {
         inputTr.unsqueeze(3);
         outputTr.reshape(inputTr.shape());
@@ -118,10 +131,29 @@ diopiError_t diopiBatchNorm(diopiContextHandle_t ctx, diopiTensorHandle_t out, d
                                                      outputTmpTr.data()));
     }
 
+    std::cout << "output: " <<std::endl;
+    printDevData(ctx, outputTmpTr);
+    std::cout << "stride: ";
+    printVec(outputTmpTr.stride());
+    std::cout << "shape: ";
+    printVec(outputTmpTr.shape());
+
     // channels last -> contiguous
     DIOPI_CALL(contiguous(ctx, outputTmpTr, MemoryFormat::Contiguous));
+    std::cout << "output contiguous" <<std::endl;
+    printDevData(ctx, outputTmpTr);
+    std::cout << "stride: ";
+    printVec(outputTmpTr.stride());
+    std::cout << "shape: ";
+    printVec(outputTmpTr.shape());
     // Copy back to origin
     DIOPI_CALL(diopiCopyInp(ctx, outputTmpTr.tensorHandle(), outputTr.tensorHandle()));
+    std::cout << "output contiguous copy" <<std::endl;
+    printDevData(ctx, outputTr);
+    std::cout << "stride: ";
+    printVec(outputTr.stride());
+    std::cout << "shape: ";
+    printVec(outputTr.shape());
 
     return diopiSuccess;
 }
@@ -152,14 +184,15 @@ diopiError_t diopiBatchNormBackward(diopiContextHandle_t ctx, diopiTensorHandle_
     if (3 == dim) {
         inputTr.unsqueeze(3);
         gradOutputTr.unsqueeze(3);
-        gradInputTr.reshape(inputTr.shape());
+        gradInputTr.unsqueeze(3);
     }
     if (2 == dim) {
         inputTr.unsqueeze(2);
         inputTr.unsqueeze(3);
         gradOutputTr.unsqueeze(2);
         gradOutputTr.unsqueeze(3);
-        gradInputTr.reshape(inputTr.shape());
+        gradInputTr.unsqueeze(2);
+        gradInputTr.unsqueeze(3);
     }
 
     std::vector<DiopiTensor*> pTensors{&gradOutputTr, &inputTr, &weightTr};
