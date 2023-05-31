@@ -9,9 +9,9 @@
 namespace impl {
 namespace camb {
 
-void bangAdamInternal(void* grad, void* m, void* v, void* vMax, void* variable, size_t sizes, int tensorNum, float beta1, float beta2, float epsilon_correction,
-                      float learning_rate_correction, int adamMode, float decay, float decay_correction, cnrtDim3_t kDim, cnrtFunctionType_t kType,
-                      cnrtQueue_t queexp_avg_tensorue, cnrtDataType_t cnrtType, bool amsgrad);
+void bangAdamInternal(void* grad, void* m, void* v, void* vMax, void* variable, size_t sizes, int tensorNum, float beta1, float beta2, float epsilonCorrection,
+                      float learningRateCorrection, int adamMode, float decay, float decayCorrection, cnrtDim3_t kDim, cnrtFunctionType_t kType,
+                      cnrtQueue_t queue, cnrtDataType_t cnrtType, bool amsgrad);
 
 diopiError_t bangAdam(diopiContextHandle_t ctx, diopiTensorHandle_t input, diopiTensorHandle_t grad, diopiTensorHandle_t expAvg, diopiTensorHandle_t expAvgSq,
                       diopiTensorHandle_t maxExpAvgSq, float lr, float beta1, float beta2, float eps, float weightDecay, int64_t step, bool amsgrad,

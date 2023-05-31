@@ -1,6 +1,7 @@
 #include <bang.h>
 
-#include "adam.hpp"
+namespace impl {
+namespace camb {
 
 #define ALIGN_UP(x, n) ((((x) + (n) - 1) / (n)) * (n))
 #define ALIGN_UP_DIV(x, n) (((x) + (n) - 1) / (n))
@@ -424,29 +425,31 @@ __mlu_global__ void MLUMultiTensorAdam(void* grad,
   }
 }
 
-void bang_fused_adam_internal(
-    void* grad,
-    void* m,
-    void* v,
-    void* v_max,
-    void* variable,
-    size_t sizes,
-    int tensor_num,
-    float beta1,
-    float beta2,
-    float epsilon_correction,
-    float learning_rate_correction,
-    int adam_mode,
-    float decay,
-    float decay_correction,
-    cnrtDim3_t k_dim,
-    cnrtFunctionType_t k_type,
-    cnrtQueue_t queue,
-    cnrtDataType_t cnrt_type,
+void bangAdamInternal(
+    void* grad, 
+    void* m, 
+    void* v, 
+    void* vMax, 
+    void* variable, 
+    size_t sizes, 
+    int tensorNum, 
+    float beta1, 
+    float beta2, 
+    float epsilonCorrection,
+    float learningRateCorrection, 
+    int adamMode, 
+    float decay, 
+    float decayCorrection, 
+    cnrtDim3_t kDim, 
+    cnrtFunctionType_t kType,
+    cnrtQueue_t queue, 
+    cnrtDataType_t cnrtType, 
     bool amsgrad) {
-  MLUMultiTensorAdam<<<k_dim, k_type, queue>>>(
-    grad, m, v , v_max, variable,
-    sizes, tensor_num, beta1, beta2,
-    epsilon_correction, learning_rate_correction,
-    adam_mode, decay, decay_correction, cnrt_type, amsgrad);
+  MLUMultiTensorAdam<<<kDim, kType, queue>>>(
+    grad, m, v , vMax, variable,
+    sizes, tensorNum, beta1, beta2,
+    epsilonCorrection, learningRateCorrection,
+    adamMode, decay, decayCorrection, cnrtType, amsgrad);
 }
+}  // namespace camb
+}  // namespace impl
