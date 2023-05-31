@@ -4,7 +4,7 @@ namespace impl {
 namespace camb {
 
 extern "C" diopiError_t diopiConvTranspose2d(diopiContextHandle_t ctx, diopiTensorHandle_t out, diopiConstTensorHandle_t input, diopiConstTensorHandle_t weight,
-                                             diopiConstTensorHandle_t bias, diopiSize_t stride, diopiSize_t padding, diopiSize_t output_padding, int64_t groups,
+                                             diopiConstTensorHandle_t bias, diopiSize_t stride, diopiSize_t padding, diopiSize_t outputPadding, int64_t groups,
                                              diopiSize_t dilation) {
     cnnlHandle_t handle = cnnlHandlePool.get(ctx);
 
@@ -69,11 +69,11 @@ extern "C" diopiError_t diopiConvTranspose2d(diopiContextHandle_t ctx, diopiTens
 
         DiopiTensor outputTr;
         std::vector<int64_t> axis{0, 2, 3, 1};
-        std::vector<int64_t> TrShape(outputCasted.shape().size());
+        std::vector<int64_t> TranspoedShape(outputCasted.shape().size());
         for (int i = 0; i < outputCasted.shape().size(); ++i) {
-            TrShape[i] = outputCasted.shape()[axis[i]];
+            TranspoedShape[i] = outputCasted.shape()[axis[i]];
         }
-        diopiSize_t outputTrShape(TrShape.data(), TrShape.size());
+        diopiSize_t outputTrShape(TranspoedShape.data(), TranspoedShape.size());
         auto outputTrHandle = outputTr.tensorHandle();
         DIOPI_CALL(diopiRequireTensor(ctx, &outputTrHandle, &outputTrShape, nullptr, outputCasted.dtype(), diopi_device));
         diopiSize_t nchw2nhwc(axis.data(), 4);
@@ -92,8 +92,8 @@ extern "C" diopiError_t diopiConvTranspose2d(diopiContextHandle_t ctx, diopiTens
         DIOPI_CALLCNNL(
             cnnlBiasAdd(handle, &alpha, biasDesc.get(), biasCasted.data(), workspaceBias, workspaceSizeBias, &beta, outputTrDesc.get(), outputTr.data()));
 
-        std::vector<int64_t> perm_nhwc2nchw{0, 3, 1, 2};
-        diopiSize_t nhwc2nchw(perm_nhwc2nchw.data(), 4);
+        std::vector<int64_t> permNhwc2nchw{0, 3, 1, 2};
+        diopiSize_t nhwc2nchw(permNhwc2nchw.data(), 4);
         DIOPI_CALL(diopiPermute(ctx, outputCasted.tensorHandle(), outputTr.tensorHandle(), nhwc2nchw));
     }
     DIOPI_CALL(dataTypeCast(ctx, outputTensor, outputCasted));
